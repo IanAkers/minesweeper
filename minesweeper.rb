@@ -52,7 +52,7 @@ class Tile
     visited = []
     until nbers.empty?
       el = nbers.shift
-      if el.neighbor_bomb_count == 0
+      if el.neighbor_bomb_count == 0 && !el.bomb_status
         el.reveal
         visited << el
         el.neighbors.each { |n| nbers << n if !visited.include?(n) }
@@ -68,16 +68,16 @@ class Board
 
   attr_accessor :board
 
-  def initialize(size, num_bombs)
-    @board = seed_board(size, num_bombs)
+  def initialize(num_bombs)
+    @board = seed_board(num_bombs)
   end
 
 
-  def seed_board(size, num_bombs)
+  def seed_board(num_bombs)
 
-    bomb_array = bomb_array_generator(size, num_bombs)
+    bomb_array = bomb_array_generator(num_bombs)
     bomb_idx = 0
-    board = Board.blank_board(9)
+    board = Board.blank_board
 
     9.times do |idx|
       9.times do |idx2|
@@ -92,10 +92,10 @@ class Board
     board
   end
 
-  def bomb_array_generator(size, num_bombs)
+  def bomb_array_generator(num_bombs)
     bombs = []
     until bombs.count == num_bombs
-      random = rand(size ** 2)
+      random = rand(9 ** 2)
 
       bombs << random unless bombs.include?(random)
     end
@@ -108,7 +108,7 @@ class Board
     board[pos[0]][pos[1]]
   end
 
-  def self.blank_board(size)
+  def self.blank_board
 
     blank_board = []
     9.times {|i| blank_board << [[],[],[],[],[],[],[],[],[]]}
@@ -121,36 +121,24 @@ end
 
 class Game
 
-  attr_accessor :game_board
+  attr_accessor :game_board, :displayed_board
 
-  def initialize(size, bombs)
-    @game_board = Board.new(size, bombs)
+  def initialize( bombs)
+    @game_board = Board.new(bombs)
+    @displayed_board = display_board
   end
 
-  # def reveal(tile_pos)
-  #   tile = @game_board.position(tile_pos)
-  #
-  #   if tile.bomb_status
-  #     raise "Game Over :-("
-  #   else
-  #     bomb_count = tile.neighbor_bomb_count
-  #     tile.reveal
-  #   end
-  #
-  #   display_board
-  # end
 
   def display_board
-    displayed_board = Board.blank_board(9)
+    displayed_board = Board.blank_board
 
     displayed_board.each_with_index do |row, index1|
       row.each_with_index do |pos, index2|
-        # debugger
         tile = @game_board.position([index1, index2])
         if tile.revealed
           displayed_board[index1][index2] = tile.neighbor_bomb_count
         elsif tile.flagged
-          displayed_board[index1][index2] = 'F'
+          displayed_board[index1][index2] = :F
         else
           displayed_board[index1][index2] = "-"
         end
@@ -160,9 +148,7 @@ class Game
   end
 
   def turn
-    10.times do
-
-
+    while display_board.any? {|row| row.include?('-')}
       puts "Choose to flag or reveal"
       choice = gets.chomp.downcase.strip
       if choice == "reveal"
@@ -182,8 +168,8 @@ class Game
         tile = game_board.position([x,y])
         tile.flag
       end
-
         print display_board
-      end
+    end
+    puts "You win!"
   end
 end
