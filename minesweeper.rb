@@ -31,6 +31,11 @@ class Tile
     counter
   end
 
+  def inspect
+    return "position: #{position}, bombed? #{bomb_status}, flagged?: #{flagged}, revealed?: #{revealed}"
+  end
+
+
 end
 
 class Board
@@ -57,5 +62,6 @@ class Board
   def position(pos)
     @board[pos]
   end
+
 
 end
