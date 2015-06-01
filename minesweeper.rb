@@ -1,15 +1,15 @@
 class Tile
 
-  def initialize(bombed? = nil, position, board)
-    @bombed? = bombed?
-    @flagged? = false
-    @revealed?= false
+  def initialize(bomb_status, position, board)
+    @bomb_status = bomb_status
+    @flagged = false
+    @revealed = false
     @position = position
 
   end
 
   def reveal
-    revealed? = true
+    revealed = true
   end
 
   def neighbors
@@ -37,17 +37,17 @@ class Board
 
   def initialize(num)
 
-    bombs = array.New(81, :clear)
-    bombs[0...num] = :bombed,
+    bombs = Array.new(81, :clear)
+    (0..9).each {|i| bombs[i] = :bombed}
     bombs = bombs.shuffle
     bombs_idx = 0
-    @board = [[]]
-    9.times loop do |idx|
-      9.times loop do |idx2|
+    @board = [[],[],[],[],[],[],[],[],[]] * 9
+    9.times do |idx|
+      9.times do |idx2|
         if bombs[bombs_idx] == :bombed
          @board[idx][idx2] = Tile.new(true, [idx,idx2], self)
         else
-         @board[idx][idx2] = Tile.new( [idx,idx2], self)
+         @board[idx][idx2] = Tile.new(false, [idx,idx2], self)
         end
        bombs_idx += 1
        end
@@ -57,3 +57,5 @@ class Board
   def position(pos)
     @board[pos]
   end
+
+end
