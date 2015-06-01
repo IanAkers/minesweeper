@@ -31,14 +31,13 @@ class Tile
     counter
   end
 
-  def inspect
-    return "position: #{position}, bombed? #{bomb_status}, flagged?: #{flagged}, revealed?: #{revealed}"
-  end
 
 
 end
 
 class Board
+
+  attr_accessor :board
 
   def initialize(num)
 
@@ -46,21 +45,25 @@ class Board
     (0..9).each {|i| bombs[i] = :bombed}
     bombs = bombs.shuffle
     bombs_idx = 0
-    @board = [[],[],[],[],[],[],[],[],[]] * 9
+    @board = []
+
+    9.times {|i| board << [[],[],[],[],[],[],[],[],[]]}
+
     9.times do |idx|
       9.times do |idx2|
         if bombs[bombs_idx] == :bombed
-         @board[idx][idx2] = Tile.new(true, [idx,idx2], self)
+         board[idx][idx2] = Tile.new(true, [idx,idx2], self)
         else
-         @board[idx][idx2] = Tile.new(false, [idx,idx2], self)
+         board[idx][idx2] = Tile.new(false, [idx,idx2], self)
         end
        bombs_idx += 1
        end
      end
+     p board
   end
 
   def position(pos)
-    @board[pos]
+    board[pos[0], pos[1]]
   end
 
 
