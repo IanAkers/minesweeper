@@ -65,6 +65,52 @@ class Board
   def position(pos)
     board[pos[0], pos[1]]
   end
+end
 
 
+class Game
+
+  def initialize(bombs)
+    @game_board = Board.new(bombs)
+  end
+
+  def reveal(tile_pos)
+  tile = @game_board.position(tile_pos)
+
+  if tile.bomb_status
+    raise "Game Over :-("
+  else
+    bomb_count = tile.neighbor_bomb_count
+    tile.reveal
+  end
+
+  display_board
+end
+
+  def display_board
+    displayed_board = []
+
+    9.times {|i| displayed_board << [[],[],[],[],[],[],[],[],[]]}
+
+    displayed_board.each_with_index do |row, index1|
+      row.each_with_index do |pos, index2|
+
+        tile = @game_board.position(pos)
+        if tile.revealed
+          displayed_board[index1][index2] = tile.neighbor_bomb_count
+        else
+          displayed_board[index1][index2] = "-"
+        end
+      end
+    end
+    puts displayed_board
+  end
+
+  def turn
+    puts "Please choose a tile. Ex. [0,0]"
+    tile = gets.chomp
+    
+
+    display_board
+  end
 end
