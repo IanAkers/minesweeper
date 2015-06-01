@@ -39,15 +39,9 @@ class Tile
     counter
   end
 
+
   def reveal_neighbors
-    # nbers = self.neighbors
-    # until nbers.empty?
-    #   el = nbers.shift
-    #   if el.neighbor_bomb_count == 0
-    #     el.reveal
-    #     el.neighbors.each { |n| nbers << n if !nbers.include?(n) }
-    #   end
-    # end
+    # return nil if self.neighbor_bomb_count > 0
     nbers = self.neighbors
     visited = []
     until nbers.empty?
@@ -58,7 +52,7 @@ class Tile
         el.neighbors.each { |n| nbers << n if !visited.include?(n) }
       end
     end
-
+    # vis = visited.select { |visitor| visitor.neighbor_bomb_count == 0}
   end
 end
 
@@ -135,12 +129,12 @@ class Game
     displayed_board.each_with_index do |row, index1|
       row.each_with_index do |pos, index2|
         tile = @game_board.position([index1, index2])
-        if tile.revealed
-          displayed_board[index1][index2] = tile.neighbor_bomb_count
+        if tile.revealed || ( tile.neighbors.any? {|n| n.revealed && !n.bomb_status && n.neighbor_bomb_count < 1 } )
+          displayed_board[index1][index2] = tile.neighbor_bomb_count.to_s
         elsif tile.flagged
-          displayed_board[index1][index2] = :F
+          displayed_board[index1][index2] = 'F'
         else
-          displayed_board[index1][index2] = "-"
+          displayed_board[index1][index2] = '-'
         end
       end
     end
@@ -159,7 +153,7 @@ class Game
         tile = game_board.position([x,y])
         raise "Game Over :-(" if tile.bomb_status
         tile.reveal
-        tile.reveal_neighbors
+        tile.reveal_neighbors unless tile.neighbor_bomb_count > 0
       elsif choice == "flag"
         puts "Please choose a tile. Ex. [0,0]"
         input = gets.chomp
@@ -168,7 +162,10 @@ class Game
         tile = game_board.position([x,y])
         tile.flag
       end
-        print display_board
+        display_board.each do |row|
+          print "#{row}" + "\n"
+        end
+
     end
     puts "You win!"
   end
